@@ -31,9 +31,17 @@ function updateDateDisplay(dateObj) {
     if (dayEl) dayEl.textContent = dateObj.toLocaleDateString('ko-KR', optionsDay);
 }
 
+let currentAbortController = null;
+
 async function loadInsights(targetDate = null) {
     const container = document.getElementById('feed-container');
     if (!container) return;
+
+    // Cancel any ongoing request
+    if (currentAbortController) {
+        currentAbortController.abort();
+    }
+    currentAbortController = new AbortController();
 
     container.innerHTML = '<div class="loading">Fetching insights from server...</div>';
 
@@ -46,7 +54,7 @@ async function loadInsights(targetDate = null) {
             ? `http://127.0.0.1:8000/api/insights?date=${targetDate}`
             : `http://127.0.0.1:8000/api/insights`;
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: currentAbortController.signal });
         if (!response.ok) {
             throw new Error(`Server responded with ${response.status}`);
         }
@@ -69,6 +77,10 @@ async function loadInsights(targetDate = null) {
         });
 
     } catch (error) {
+        if (error.name === 'AbortError') {
+            console.log('Request was aborted');
+            return;
+        }
         console.error('Error loading insights:', error);
         container.innerHTML = `<div class="loading">
             <p>Error connecting to API server.</p>
