@@ -89,20 +89,20 @@ def fetch_emails(target_date=None):
         date_before = (target_date + datetime.timedelta(days=1)).strftime("%d-%b-%Y")
         
         search_criteria = f'(SINCE "{date_since}" BEFORE "{date_before}")'
-        status, response = mail.search(None, search_criteria)
+        status, response = mail.uid('search', None, search_criteria)
         
-        email_ids = response[0].split()
+        uids = response[0].split()
         emails_data = []
         
         count = 0
         vip_senders = [s.lower() for s in pref_config.get('vip_senders', [])]
         max_emails = pref_config.get('max_emails_per_day', 10)
 
-        for e_id in reversed(email_ids):
+        for e_uid in reversed(uids):
             if count >= max_emails:
                 break
                 
-            status, data = mail.fetch(e_id, '(RFC822)')
+            status, data = mail.uid('fetch', e_uid, '(RFC822)')
             for response_part in data:
                 if isinstance(response_part, tuple):
                     msg = email.message_from_bytes(response_part[1])
@@ -150,7 +150,7 @@ def fetch_emails(target_date=None):
                     body = get_email_body(msg)
                     
                     emails_data.append({
-                        "id": str(e_id, 'utf-8'),
+                        "id": e_uid.decode('utf-8'),
                         "subject": subject,
                         "sender": sender_name,
                         "email_address": sender_email,
