@@ -30,13 +30,58 @@ body {
     animation: fadeInDown 0.8s ease-out;
 }
 
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
 .date-display {
     text-transform: uppercase;
     color: var(--accent-color);
     font-weight: 600;
     letter-spacing: 1px;
     font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    text-align: left;
+}
+
+.date-selector {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.date-selector input[type="date"] {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.date-selector input[type="date"]:focus {
+    border-color: var(--accent-color);
+}
+
+.date-selector button {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.date-selector button:hover {
+    background-color: #2563eb;
 }
 
 h1 {

@@ -58,10 +58,15 @@ def get_email_body(msg):
                 body = soup.get_text()
     return clean_text(body)
 
-def fetch_emails():
+def fetch_emails(target_date=None):
     config = load_config()
     imap_config = config['imap']
     pref_config = config['preferences']
+
+    if target_date is None:
+        target_date = datetime.date.today()
+    elif isinstance(target_date, str):
+        target_date = datetime.date.fromisoformat(target_date)
 
     try:
         # Connect to IMAP
@@ -78,9 +83,13 @@ def fetch_emails():
             print(f"Failed to select folder: {folder}")
             return []
 
-        # Search for recent emails (last 24 hours)
-        date_since = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%d-%b-%Y")
-        status, response = mail.search(None, f'(SINCE "{date_since}")')
+        # Search for emails on the target date
+        # IMAP "SINCE" is inclusive, "BEFORE" is exclusive
+        date_since = target_date.strftime("%d-%b-%Y")
+        date_before = (target_date + datetime.timedelta(days=1)).strftime("%d-%b-%Y")
+        
+        search_criteria = f'(SINCE "{date_since}" BEFORE "{date_before}")'
+        status, response = mail.search(None, search_criteria)
         
         email_ids = response[0].split()
         emails_data = []

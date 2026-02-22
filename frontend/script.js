@@ -1,33 +1,54 @@
 document.addEventListener('DOMContentLoaded', () => {
-    updateDate();
+    initDateControls();
     loadInsights();
 });
 
-function updateDate() {
-    const now = new Date();
+function initDateControls() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('target-date');
+    dateInput.value = today;
+
+    document.getElementById('refresh-btn').addEventListener('click', () => {
+        loadInsights(dateInput.value);
+    });
+
+    updateDateDisplay(new Date());
+}
+
+function updateDateDisplay(dateObj) {
     const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
     const optionsDay = { weekday: 'long' };
 
-    document.getElementById('current-date').textContent = now.toLocaleDateString('ko-KR', optionsDate);
-    document.getElementById('current-day').textContent = now.toLocaleDateString('ko-KR', optionsDay);
+    document.getElementById('current-date').textContent = dateObj.toLocaleDateString('ko-KR', optionsDate);
+    document.getElementById('current-day').textContent = dateObj.toLocaleDateString('ko-KR', optionsDay);
 }
 
-async function loadInsights() {
+async function loadInsights(targetDate = null) {
     const container = document.getElementById('feed-container');
+    container.innerHTML = '<div class="loading">Fetching insights from server...</div>';
+
+    if (targetDate) {
+        updateDateDisplay(new Date(targetDate));
+    }
 
     try {
-        // Check if data loaded from data.js
-        if (typeof DAILY_INSIGHTS === 'undefined') {
-            throw new Error('Data file (data.js) not loaded. Run the main script first.');
+        const url = targetDate
+            ? `http://127.0.0.1:8000/api/insights?date=${targetDate}`
+            : `http://127.0.0.1:8000/api/insights`;
+
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
         }
 
-        const data = DAILY_INSIGHTS;
+        const result = await response.json();
+        const data = result.insights;
 
         // Clear loading state
         container.innerHTML = '';
 
-        if (data.length === 0) {
-            container.innerHTML = '<div class="loading">No insights found for today.</div>';
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="loading">No insights found for this date.</div>';
             return;
         }
 
@@ -40,8 +61,9 @@ async function loadInsights() {
     } catch (error) {
         console.error('Error loading insights:', error);
         container.innerHTML = `<div class="loading">
-            <p>Waiting for data...</p>
-            <p style="font-size: 0.9rem; margin-top: 10px;">(Error: ${error.message})</p>
+            <p>Error connecting to API server.</p>
+            <p style="font-size: 0.9rem; margin-top: 10px;">Make sure the backend server (run.py) is running.</p>
+            <p style="font-size: 0.8rem; color: #888;">(${error.message})</p>
         </div>`;
     }
 }
@@ -51,7 +73,6 @@ function createCard(data, index) {
     article.className = 'insight-card';
     article.style.animationDelay = `${index * 0.1}s`;
 
-    // Default values if missing
     const category = data.category || 'General';
     const summary = data.summary || 'No summary available.';
     const keyPoints = data.key_points || [];
@@ -82,28 +103,14 @@ function createCard(data, index) {
         ${actionableHtml}
         
         <div class="card-actions">
-            <a href="#" class="read-btn" onclick="openOriginalEmail('${data.id}')">Read Original Email →</a>
+            <a href="#" class="read-btn" onclick="openOriginalEmail('${data.subject}')">Read Original Email →</a>
         </div>
     `;
 
     return article;
 }
 
-function openOriginalEmail(id) {
-    // Find the item to get the subject
-    const item = DAILY_INSIGHTS.find(i => i.id === id);
-    if (!item) {
-        window.open('https://mail.naver.com', '_blank');
-        return;
-    }
-
-    // Creating a search URL for Naver Mail
-    // Note: The specific URL structure may vary, but searching by subject is generally reliable.
-    // Try the PC web version search parameter.
-    const searchUrl = `https://mail.naver.com/v2/folders/0/all/search/subject/${encodeURIComponent(item.subject)}`;
-
-    // Alternative fallback if the V2 URL structure changes:
-    // const searchUrl = `https://mail.naver.com/#/search/all?query=${encodeURIComponent(item.subject)}`;
-
+function openOriginalEmail(subject) {
+    const searchUrl = `https://mail.naver.com/v2/folders/0/all/search/subject/${encodeURIComponent(subject)}`;
     window.open(searchUrl, '_blank');
 }

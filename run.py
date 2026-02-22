@@ -3,6 +3,7 @@ import os
 import sys
 import webbrowser
 import time
+import signal
 
 def run_command(command, cwd=None):
     print(f"Executing: {command}")
@@ -11,6 +12,14 @@ def run_command(command, cwd=None):
         print(f"Error: Command failed with return code {result.returncode}")
         return False
     return True
+
+def start_api_server(project_root):
+    print("\n[2/3] Starting API server...")
+    api_path = os.path.join(project_root, "backend", "api.py")
+    
+    # Start the server as a background process
+    proc = subprocess.Popen([sys.executable, api_path], cwd=project_root)
+    return proc
 
 def main():
     project_root = os.path.dirname(os.path.abspath(__file__))
@@ -26,12 +35,11 @@ def main():
         print("Dependency installation failed.")
         return
 
-    # 2. Run Backend
-    print("\n[2/3] Fetching emails and generating insights...")
-    backend_main = os.path.join(project_root, "backend", "main.py")
-    if not run_command(f"{sys.executable} {backend_main}"):
-        print("Backend execution failed.")
-        return
+    # 2. Start API Server
+    server_proc = start_api_server(project_root)
+    
+    # Wait a moment for server to start
+    time.sleep(2)
 
     # 3. Open Frontend
     print("\n[3/3] Opening Dashboard...")
@@ -41,7 +49,20 @@ def main():
     print(f"Opening: {file_url}")
     webbrowser.open(file_url)
 
-    print("\nDone! Have a productive day.")
+    print("\n==========================================")
+    print("   Server is running at http://127.0.0.1:8000")
+    print("   Dashboard is open in your browser.")
+    print("   Press Ctrl+C to stop the server.")
+    print("==========================================")
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping server...")
+        server_proc.terminate()
+        server_proc.wait()
+        print("Done. Have a productive day.")
 
 if __name__ == "__main__":
     main()

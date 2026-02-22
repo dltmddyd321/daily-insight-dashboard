@@ -16,9 +16,15 @@
 <body>
     <div class="app-container">
         <header class="header">
-            <div class="date-display">
-                <span id="current-date">October 24, 2024</span>
-                <span id="current-day">Thursday</span>
+            <div class="header-top">
+                <div class="date-display">
+                    <span id="current-date">October 24, 2024</span>
+                    <span id="current-day">Thursday</span>
+                </div>
+                <div class="date-selector">
+                    <input type="date" id="target-date">
+                    <button id="refresh-btn">Fetch Insights</button>
+                </div>
             </div>
             <h1>Daily Insights</h1>
             <p class="subtitle">Your curated morning briefing from VIP emails.</p>

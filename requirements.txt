@@ -1,4 +1,6 @@
 google-generativeai
 beautifulsoup4
 chardet
+fastapi
+uvicorn
 python-dotenv
