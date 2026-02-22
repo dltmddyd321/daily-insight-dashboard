@@ -6,11 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
 function initDateControls() {
     const today = new Date().toISOString().split('T')[0];
     const dateInput = document.getElementById('target-date');
-    dateInput.value = today;
+    if (dateInput) {
+        dateInput.value = today;
+    }
 
-    document.getElementById('refresh-btn').addEventListener('click', () => {
-        loadInsights(dateInput.value);
-    });
+    const refreshBtn = document.getElementById('refresh-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            loadInsights(dateInput.value);
+        });
+    }
 
     updateDateDisplay(new Date());
 }
@@ -19,12 +24,17 @@ function updateDateDisplay(dateObj) {
     const optionsDate = { year: 'numeric', month: 'long', day: 'numeric' };
     const optionsDay = { weekday: 'long' };
 
-    document.getElementById('current-date').textContent = dateObj.toLocaleDateString('ko-KR', optionsDate);
-    document.getElementById('current-day').textContent = dateObj.toLocaleDateString('ko-KR', optionsDay);
+    const dateEl = document.getElementById('current-date');
+    const dayEl = document.getElementById('current-day');
+
+    if (dateEl) dateEl.textContent = dateObj.toLocaleDateString('ko-KR', optionsDate);
+    if (dayEl) dayEl.textContent = dateObj.toLocaleDateString('ko-KR', optionsDay);
 }
 
 async function loadInsights(targetDate = null) {
     const container = document.getElementById('feed-container');
+    if (!container) return;
+
     container.innerHTML = '<div class="loading">Fetching insights from server...</div>';
 
     if (targetDate) {
@@ -103,14 +113,33 @@ function createCard(data, index) {
         ${actionableHtml}
         
         <div class="card-actions">
-            <a href="#" class="read-btn" onclick="openOriginalEmail('${data.subject}')">Read Original Email →</a>
+            <button class="read-btn" data-subject="${data.subject.replace(/"/g, '&quot;')}">Read Original Email →</button>
         </div>
     `;
+
+    // Add event listener to the button
+    const readBtn = article.querySelector('.read-btn');
+    if (readBtn) {
+        readBtn.addEventListener('click', () => {
+            openOriginalEmail(data.subject);
+        });
+    }
 
     return article;
 }
 
 function openOriginalEmail(subject) {
+    // A more reliable Naver Mail search URL
+    // This format is generally more robust for searching across different mail versions
     const searchUrl = `https://mail.naver.com/v2/folders/0/all/search/subject/${encodeURIComponent(subject)}`;
-    window.open(searchUrl, '_blank');
+
+    // Fallback search URL if v2 is problematic for some users
+    const fallbackUrl = `https://mail.naver.com/#/search/all?query=${encodeURIComponent(subject)}`;
+
+    // We'll try the v2 one as it's the current default for many, 
+    // but if it consistently fails, the user can see if fallback works.
+    // For now, let's try the modern query parameter approach which is often more stable.
+    const queryUrl = `https://mail.naver.com/v2/folders/0/all/search?query=${encodeURIComponent(subject)}`;
+
+    window.open(queryUrl, '_blank');
 }
