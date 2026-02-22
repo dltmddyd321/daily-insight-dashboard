@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Insight Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="date-display">
+                <span id="current-date">October 24, 2024</span>
+                <span id="current-day">Thursday</span>
+            </div>
+            <h1>Daily Insights</h1>
+            <p class="subtitle">Your curated morning briefing from VIP emails.</p>
+        </header>
+
+        <main id="feed-container" class="feed-container">
+            <!-- Cards will be injected here via JS -->
+            <div class="loading">Loading today's insights...</div>
+        </main>
+
+        <footer class="footer">
+            <p>Powered by Daily Insight Automator</p>
+        </footer>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

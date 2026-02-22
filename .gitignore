@@ -1,0 +1,9 @@
+config.json
+data.json
+data.js
+__pycache__/
+*.pyc
+.DS_Store
+node_modules/
+dist/
+.env
