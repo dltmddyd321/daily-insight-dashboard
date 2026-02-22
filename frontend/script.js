@@ -113,7 +113,7 @@ function createCard(data, index) {
         ${actionableHtml}
         
         <div class="card-actions">
-            <button class="read-btn" data-subject="${data.subject.replace(/"/g, '&quot;')}">Read Original Email →</button>
+            <button class="read-btn">Read Original Email →</button>
         </div>
     `;
 
@@ -121,25 +121,15 @@ function createCard(data, index) {
     const readBtn = article.querySelector('.read-btn');
     if (readBtn) {
         readBtn.addEventListener('click', () => {
-            openOriginalEmail(data.subject);
+            openOriginalEmail(data.id);
         });
     }
 
     return article;
 }
 
-function openOriginalEmail(subject) {
-    // A more reliable Naver Mail search URL
-    // This format is generally more robust for searching across different mail versions
-    const searchUrl = `https://mail.naver.com/v2/folders/0/all/search/subject/${encodeURIComponent(subject)}`;
-
-    // Fallback search URL if v2 is problematic for some users
-    const fallbackUrl = `https://mail.naver.com/#/search/all?query=${encodeURIComponent(subject)}`;
-
-    // We'll try the v2 one as it's the current default for many, 
-    // but if it consistently fails, the user can see if fallback works.
-    // For now, let's try the modern query parameter approach which is often more stable.
-    const queryUrl = `https://mail.naver.com/v2/folders/0/all/search?query=${encodeURIComponent(subject)}`;
-
-    window.open(queryUrl, '_blank');
+function openOriginalEmail(mailId) {
+    // Direct link to Naver Mail using Folder 0 (Inbox) and the Mail ID (UID)
+    const directLink = `https://mail.naver.com/v2/read/0/${mailId}`;
+    window.open(directLink, '_blank');
 }
