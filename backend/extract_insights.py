@@ -32,15 +32,16 @@ def extract_insights(emails):
         
         prompt = f"""
         You are a helpful assistant that summarizes newsletters into daily insights.
-        Analyze the following email newsletter and extract 3 key insights in KOREAN (한국어).
+        Analyze the following email newsletter and extract the most important key insights in KOREAN (한국어). 
+        Extract between 1 and 5 key insights, depending on how much meaningful content the email contains. Make them concise.
         
         Return the response in strictly valid JSON format with the following structure:
         {{
             "summary": "A one-sentence summary of the email in Korean.",
             "key_points": [
                 "Key finding 1 in Korean",
-                "Key finding 2 in Korean",
-                "Key finding 3 in Korean"
+                "Key finding 2 in Korean (if applicable)",
+                "...up to 5 key findings maximum"
             ],
             "actionable_item": "One actionable takeaway if applicable in Korean, else null",
             "category": "Tech / Business / Design / General"

@@ -43,7 +43,12 @@ async function loadInsights(targetDate = null) {
     }
     currentAbortController = new AbortController();
 
-    container.innerHTML = '<div class="loading">Fetching insights from server...</div>';
+    container.innerHTML = `
+        <div class="loading-wrapper">
+            <div class="spinner"></div>
+            <div class="loading-text">Fetching insights from server...</div>
+        </div>
+    `;
 
     if (targetDate) {
         updateDateDisplay(new Date(targetDate));
@@ -66,7 +71,11 @@ async function loadInsights(targetDate = null) {
         container.innerHTML = '';
 
         if (!data || data.length === 0) {
-            container.innerHTML = '<div class="loading">No insights found for this date.</div>';
+            container.innerHTML = `
+                <div class="loading-wrapper">
+                    <div class="loading-text" style="animation: none; opacity: 1;">No insights found for this date.</div>
+                </div>
+            `;
             return;
         }
 
@@ -82,11 +91,15 @@ async function loadInsights(targetDate = null) {
             return;
         }
         console.error('Error loading insights:', error);
-        container.innerHTML = `<div class="loading">
-            <p>Error connecting to API server.</p>
-            <p style="font-size: 0.9rem; margin-top: 10px;">Make sure the backend server (run.py) is running.</p>
-            <p style="font-size: 0.8rem; color: #888;">(${error.message})</p>
-        </div>`;
+        container.innerHTML = `
+            <div class="loading-wrapper">
+                <div class="loading-text" style="animation: none; opacity: 1; color: #ef4444;">
+                    <p>Error connecting to API server.</p>
+                    <p style="font-size: 0.9rem; margin-top: 10px; font-weight: normal; color: var(--text-secondary);">Make sure the backend server (run.py) is running.</p>
+                    <p style="font-size: 0.8rem; color: #888; font-weight: normal;">(${error.message})</p>
+                </div>
+            </div>
+        `;
     }
 }
 
